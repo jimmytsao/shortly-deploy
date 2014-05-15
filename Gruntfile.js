@@ -3,6 +3,10 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
+      dist: {
+        src: ['public/client/*.js'],
+        dest: 'public/dist/shortly.js'
+      }
     },
 
     mochaTest: {
@@ -21,23 +25,42 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      build: {
+        src:  'public/dist/shortly.js',
+        dest: 'public/dist/shortly.min.js'
+      }
     },
 
     jshint: {
       files: [
         // Add filespec list here
+        'server.js',
+        'server-config.js',
+        'public/client/*.js',
+        'test/*.js',
+        'lib/*.js',
+        'Gruntfile.js',
+        'app/*.js'
       ],
       options: {
         force: 'true',
         jshintrc: '.jshintrc',
         ignores: [
           'public/lib/**/*.js',
-          'public/dist/**/*.js'
+          'public/dist/**/*.js',
+          'node_modules/**/*.js'
         ]
       }
     },
 
     cssmin: {
+      minify: {
+        expand: true,
+        cwd: 'public/',
+        src: ['*.css', '!*.min.css'],
+        dest: 'public/dist/',
+        ext: '.min.css'
+      }
     },
 
     watch: {
@@ -59,6 +82,7 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
+        command: 'git push azure master'
       }
     },
   });
@@ -85,6 +109,7 @@ module.exports = function(grunt) {
     grunt.task.run([ 'watch' ]);
   });
 
+
   ////////////////////////////////////////////////////
   // Main grunt tasks
   ////////////////////////////////////////////////////
@@ -94,17 +119,24 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'concat',
+    'uglify',
+    'cssmin'
   ]);
 
   grunt.registerTask('upload', function(n) {
     if(grunt.option('prod')) {
-      // add your production server task here
+      grunt.task.run(['shell']);
     } else {
       grunt.task.run([ 'server-dev' ]);
     }
   });
 
   grunt.registerTask('deploy', [
+    'jshint',
+    'test',
+    'build',
+    'upload'
     // add your deploy tasks here
   ]);
 
