@@ -43,7 +43,7 @@ module.exports = function(grunt) {
         'app/*.js'
       ],
       options: {
-        force: 'true',
+        force: false,
         jshintrc: '.jshintrc',
         ignores: [
           'public/lib/**/*.js',
@@ -81,6 +81,7 @@ module.exports = function(grunt) {
     },
 
     shell: {
+
       prodServer: {
         command: 'git push azure master'
       }
